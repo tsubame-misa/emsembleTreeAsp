@@ -15,20 +15,6 @@ import os
 file_path = os.path.dirname(os.path.realpath(__file__))
 
 
-"""
- "condition": "go to node {left} if X[:, {feature}] <= {threshold} else to node {right}.".format(
-    left=children_left[p],
-    feature=MUSIC_FEATURE[feature[p]],
-    threshold=threshold[p],
-    right=children_right[p],
-    value=values[p],
-), 
-"""
-# def predict(path, X):
-   
-#     return predict_y
-
-
 def get_evaluation(path, X, y, df):
     # そのpathを通ったXについて
     predict_y = []
@@ -39,7 +25,6 @@ def get_evaluation(path, X, y, df):
         leaf = True
         for i in range(len(path)):
             condition = path[i]["condition"]
-            # print(condition)
             if condition["left"] ==  path[i]["next"]:
                 if not row[condition["feature"]] <= condition["threshold"]:
                     leaf = False if i!=len(path)-1 else True
@@ -57,12 +42,13 @@ def get_evaluation(path, X, y, df):
             predicted_x_index.append(index)
 
     if len(predict_y) > 0:
-        print("path len", len(path))
-        print(len(predict_y), len(ans_y), len(y))
-        print('confusion matrix = \n', confusion_matrix(y_true=ans_y, y_pred=predict_y))
-        # exit()
+        eval = {"accuracy":accuracy_score(y_true=ans_y, y_pred=predict_y),
+                "precision": precision_score(y_true=ans_y, y_pred=predict_y),
+                "recall":recall_score(y_true=ans_y, y_pred=predict_y),
+                "f1":f1_score(y_true=ans_y, y_pred=predict_y)}
+        return eval
 
-    return
+    return {"accuracy": None,"precision":  None,"recall": None,"f1": None}
 
 
 
@@ -103,39 +89,7 @@ def get_rules(clf, X, y, df):
         "The binary tree structure has {n} nodes and has "
         "the following tree structure:\n".format(n=n_nodes)
     )
-
-    count_leaf = 0
-    for i in range(n_nodes):
-        if is_leaves[i]:
-            # print(
-            #     "{space}node={node} is a leaf node with value={value}.".format(
-            #         space=node_depth[i] * "\t", node=i, value=values[i]
-            #     )
-            # )
-            count_leaf += 1
-        # else:
-            # print(
-            #     "{space}node={node} is a split node with value={value}: "
-            #     "go to node {left} if X[:, {feature}] <= {threshold} "
-            #     "else to node {right}.".format(
-            #         space=node_depth[i] * "\t",
-            #         node=i,
-            #         left=children_left[i],
-            #         feature=MUSIC_FEATURE[feature[i]],
-            #         threshold=threshold[i],
-            #         right=children_right[i],
-            #         value=values[i],
-            #     )
-            # )
-
     
-    # def add_path(i, path):
-    #     path += str(i)+","
-    #     if children_left[i]==children_right[i]:
-    #         path_str_index_list.append(path)
-    #         return
-    #     add_path(children_left[i], path)
-    #     add_path(children_right[i], path)
     def add_path(i, path):
         path += str(i)+","
         path_str_index_list.append(path)
@@ -146,8 +100,6 @@ def get_rules(clf, X, y, df):
     
     path_str_index_list = []
     add_path(0, "")
-
-    print(len(path_str_index_list), count_leaf)
 
     path_index_lsit = [p[:-1].split(',') for p in path_str_index_list]
     path_list = []
@@ -177,11 +129,10 @@ def get_rules(clf, X, y, df):
                 }
             path.append(obj)
         cnt += 1
-        if cnt > 10:
-            exit()
-        get_evaluation(path, X, y, df)        
-        print("-------------------")
-        path_list.append(path)
+        eval = get_evaluation(path, X, y, df)  
+        info = {"path":path, "evaluation":eval}
+        path_list.append(info)
+    print(path_list[-1])
     
 
 # RandomForestの分類器を作る
