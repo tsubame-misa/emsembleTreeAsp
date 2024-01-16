@@ -15,6 +15,56 @@ import os
 file_path = os.path.dirname(os.path.realpath(__file__))
 
 
+global coundition_count
+global rule_id
+global conditions 
+
+def convert_rule(info):
+    global rule_id
+    idx = rule_id
+    global coundition_count, conditions 
+    eval = info["evaluation"]
+    path_info = info["path_info"]
+    support = 3 #全体の長さ
+    size = 3 #分割条件の数
+
+    rule = "rule("+str(idx)+"). "
+    
+    if not eval["predict_class"] is None:
+        rule += "accuracy({idx},{accuracy}). error_rate({idx},{error_rate}). precision({idx},{precision}). "\
+            "recall({idx},{recall}). f1_score({idx},{f1}). predict_class({idx},{predict_class}). ".format(
+            idx=idx,
+            accuracy = eval["accuracy"],
+            error_rate = eval["error_rate"],
+            precision = eval["precision"],
+            recall = eval["recall"],
+            f1 = eval["f1"],
+            predict_class = eval["predict_class"],
+            )
+        support += 6
+    
+    for i in range(len(path_info)):
+        rule += "condition({idx}, {coundition_count}). ".format(idx=idx, coundition_count=coundition_count)
+        
+        # conditionの中身は見ていないので、辞書で対応づけられる数値を入れておく
+        condition = path_info[i]["condition"]
+        if condition["left"] ==  path_info[i]["next"]:
+            c = "{feature} <= {threshold}".format(feature=condition["feature"], threshold=condition["threshold"])
+        else:
+             c = "{feature} > {threshold}".format(feature=condition["feature"], threshold=condition["threshold"])
+        conditions.append(c)
+        coundition_count += 1
+        support += 1
+        size += 1
+    
+    rule += "support({idx},{support}). size({idx},{size}).".format(idx=idx, support=support, size=size)   
+
+    rule_id += 1
+
+    return rule 
+
+
+
 def get_evaluation(path, X, y, df):
     # そのpathを通ったXについて
     predict_y = []
@@ -35,21 +85,25 @@ def get_evaluation(path, X, y, df):
                     break
         if leaf:
             if condition["value"][0][0] > condition["value"][0][1]:
+                predict_class = 0
                 predict_y.append(0)
             else:
+                predict_class = 1
                 predict_y.append(1)
             ans_y.append(y[index])
             predicted_x_index.append(index)
 
     if len(predict_y) > 0:
-        eval = {"accuracy":accuracy_score(y_true=ans_y, y_pred=predict_y),
-                "precision": precision_score(y_true=ans_y, y_pred=predict_y),
-                "recall":recall_score(y_true=ans_y, y_pred=predict_y),
-                "f1":f1_score(y_true=ans_y, y_pred=predict_y)}
+        # 小数点が扱えないので100%表記に
+        eval = {"accuracy": int(accuracy_score(y_true=ans_y, y_pred=predict_y)*100),
+                "precision": int(precision_score(y_true=ans_y, y_pred=predict_y)*100),
+                "recall": int(recall_score(y_true=ans_y, y_pred=predict_y)*100),
+                "f1": int(f1_score(y_true=ans_y, y_pred=predict_y)*100), 
+                "error_rate" : int((1 - accuracy_score(y_true=ans_y, y_pred=predict_y))*100),
+                "predict_class": predict_class}
         return eval
 
-    return {"accuracy": None,"precision":  None,"recall": None,"f1": None}
-
+    return {"accuracy":None,"precision":None,"recall": None,"f1":None, "error_rate":None, "predict_class":None}
 
 
 
@@ -105,7 +159,8 @@ def get_rules(clf, X, y, df):
     path_list = []
 
     cnt = 0
-    for path_idxs in path_index_lsit:
+    for j in range(len(path_index_lsit)):
+        path_idxs = path_index_lsit[j]
         path = []
         for i in range(len(path_idxs)):
             p = int(path_idxs[i])
@@ -128,11 +183,18 @@ def get_rules(clf, X, y, df):
                 "next": path_idxs[i+1] if i+1 < len(path_idxs) else -1,
                 }
             path.append(obj)
-        cnt += 1
         eval = get_evaluation(path, X, y, df)  
-        info = {"path":path, "evaluation":eval}
+        info = {"path":path_idxs, "path_info":path, "evaluation":eval}
+        rule = convert_rule(info)
+        info["rule"] = rule
+
+        # if not eval["predict_class"] is None:
+        #     print(rule)
+        #     print("-----------------")
+        
         path_list.append(info)
-    print(path_list[-1])
+    print(len(path_list))
+    return path_list
     
 
 # RandomForestの分類器を作る
@@ -144,7 +206,7 @@ def random_forest_classifier_maker(data):
 
     # ランダムフォレスト回帰
     # forest = RandomForestClassifier(random_state=1234)
-    forest = RandomForestClassifier(random_state=1234, n_estimators=5)
+    forest = RandomForestClassifier(random_state=1234, n_estimators=2)
     # モデル学習
     forest.fit(X, y)
 
@@ -175,7 +237,33 @@ def random_forest_classifier_maker(data):
     # tree.plot_tree(t)
     # plt.show()
 
-    get_rules(forest.estimators_[0], X, y, df)
+    global coundition_count, conditions, rule_id
+    coundition_count = 0
+    conditions = []
+    rule_id = 0
+
+    rules = []
+    all_info = []
+    # len_list = []
+
+    print(len(forest.estimators_))
+    for tree in forest.estimators_:
+        tree_rules = get_rules(tree, X, y, df)
+        # len_list.append(len(tree_rules))
+        for t in tree_rules:
+            rules.append(t["rule"])
+            all_info.append(t)
+    
+    rule_str = '\n'.join(rules)
+
+    f = open('rules.txt', 'w')
+    f.write(rule_str)
+    f.close()
+    
+    print(len(rules), len(all_info))
+    # print(len_list)
+    # print(sum(len_list))
+
 
 
 # 実際にRandomForestで分類する

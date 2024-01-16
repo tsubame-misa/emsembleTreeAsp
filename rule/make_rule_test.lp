@@ -13,7 +13,7 @@
 
 % ルール
 
-rule(1). condition(1,1). condition(1,2). condition(1,3). support(1,10).
+rule(1). condition(1, 1). condition(1,2). condition(1,3). support(1,10).
 size(1,3). accuracy(1,50). error_rate(1,50). precision(1,50).
 recall(1,50). f1_score(1,50). predict_class(1,1).
 
