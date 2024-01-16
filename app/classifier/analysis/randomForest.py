@@ -58,12 +58,7 @@ def get_evaluation(path, X, y, df):
 
     if len(predict_y) > 0:
         print("path len", len(path))
-        # print("predict_y", predict_y)
-        # print("y", y)
         print(len(predict_y), len(ans_y), len(y))
-        """
-        TODO:predict_y, yから評価値を求める
-        """
         print('confusion matrix = \n', confusion_matrix(y_true=ans_y, y_pred=predict_y))
         # exit()
 
@@ -134,10 +129,17 @@ def get_rules(clf, X, y, df):
             # )
 
     
+    # def add_path(i, path):
+    #     path += str(i)+","
+    #     if children_left[i]==children_right[i]:
+    #         path_str_index_list.append(path)
+    #         return
+    #     add_path(children_left[i], path)
+    #     add_path(children_right[i], path)
     def add_path(i, path):
         path += str(i)+","
+        path_str_index_list.append(path)
         if children_left[i]==children_right[i]:
-            path_str_index_list.append(path)
             return
         add_path(children_left[i], path)
         add_path(children_right[i], path)
@@ -174,17 +176,12 @@ def get_rules(clf, X, y, df):
                 "next": path_idxs[i+1] if i+1 < len(path_idxs) else -1,
                 }
             path.append(obj)
-            cnt += 1
-            if cnt > 10:
-                exit()
-            # print(path)
-            get_evaluation(path, X, y, df)
-            print("- - - - - - - - - - - - - -")
-        
+        cnt += 1
+        if cnt > 10:
+            exit()
+        get_evaluation(path, X, y, df)        
         print("-------------------")
-        
-        # exit()
-        # path_list.append(path)
+        path_list.append(path)
     
 
 # RandomForestの分類器を作る
@@ -204,11 +201,9 @@ def random_forest_classifier_maker(data):
     with open(file_path+'/models/randomForestModel.pickle', mode='wb') as f:
         pickle.dump(forest, f, protocol=2)
 
-    
+    """
     # 推論
     y_train_pred = forest.predict(X)
-    """
-
     # 平均平方二乗誤差(RMSE)
     print('RMSE 学習: %.2f' % (
         mean_squared_error(y, y_train_pred, squared=False)  # 学習
