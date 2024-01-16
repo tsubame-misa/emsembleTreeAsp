@@ -4,6 +4,7 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn import tree
 import matplotlib.pyplot as plt
 import numpy as np
+from sklearn.metrics import confusion_matrix, accuracy_score, precision_score, recall_score, f1_score
 
 import pickle
 from .formated import format_data
@@ -13,12 +14,70 @@ import os
 
 file_path = os.path.dirname(os.path.realpath(__file__))
 
+
+"""
+ "condition": "go to node {left} if X[:, {feature}] <= {threshold} else to node {right}.".format(
+    left=children_left[p],
+    feature=MUSIC_FEATURE[feature[p]],
+    threshold=threshold[p],
+    right=children_right[p],
+    value=values[p],
+), 
+"""
+# def predict(path, X):
+   
+#     return predict_y
+
+
+def get_evaluation(path, X, y, df):
+    # そのpathを通ったXについて
+    predict_y = []
+    ans_y = []
+    predicted_x_index = []
+
+    for index, row in df.iterrows():
+        leaf = True
+        for i in range(len(path)):
+            condition = path[i]["condition"]
+            # print(condition)
+            if condition["left"] ==  path[i]["next"]:
+                if not row[condition["feature"]] <= condition["threshold"]:
+                    leaf = False if i!=len(path)-1 else True
+                    break  
+            else:
+                if not row[condition["feature"]] > condition["threshold"]:
+                    leaf = False if i!=len(path)-1 else True
+                    break
+        if leaf:
+            if condition["value"][0][0] > condition["value"][0][1]:
+                predict_y.append(0)
+            else:
+                predict_y.append(1)
+            ans_y.append(y[index])
+            predicted_x_index.append(index)
+
+    if len(predict_y) > 0:
+        print("path len", len(path))
+        # print("predict_y", predict_y)
+        # print("y", y)
+        print(len(predict_y), len(ans_y), len(y))
+        """
+        TODO:predict_y, yから評価値を求める
+        """
+        print('confusion matrix = \n', confusion_matrix(y_true=ans_y, y_pred=predict_y))
+        # exit()
+
+    return
+
+
+
+
+
 """
 [37, 34, 41] があり、クラス 0 のサンプルが 37 個、クラス 1 のサンプルが 34 個、クラス 2 のサンプルが 41 個あることを示しています。
 """
 
-
-def get_rules(clf):
+def get_rules(clf, X, y, df):
     n_nodes = clf.tree_.node_count
     children_left = clf.tree_.children_left
     children_right = clf.tree_.children_right
@@ -43,8 +102,6 @@ def get_rules(clf):
             stack.append((children_left[node_id], depth + 1))
             stack.append((children_right[node_id], depth + 1))
         else:
-            print(node_id, depth ,stack)
-            print()
             is_leaves[node_id] = True
 
     print(
@@ -53,29 +110,28 @@ def get_rules(clf):
     )
 
     count_leaf = 0
-    
     for i in range(n_nodes):
         if is_leaves[i]:
-            print(
-                "{space}node={node} is a leaf node with value={value}.".format(
-                    space=node_depth[i] * "\t", node=i, value=values[i]
-                )
-            )
+            # print(
+            #     "{space}node={node} is a leaf node with value={value}.".format(
+            #         space=node_depth[i] * "\t", node=i, value=values[i]
+            #     )
+            # )
             count_leaf += 1
-        else:
-            print(
-                "{space}node={node} is a split node with value={value}: "
-                "go to node {left} if X[:, {feature}] <= {threshold} "
-                "else to node {right}.".format(
-                    space=node_depth[i] * "\t",
-                    node=i,
-                    left=children_left[i],
-                    feature=MUSIC_FEATURE[feature[i]],
-                    threshold=threshold[i],
-                    right=children_right[i],
-                    value=values[i],
-                )
-            )
+        # else:
+            # print(
+            #     "{space}node={node} is a split node with value={value}: "
+            #     "go to node {left} if X[:, {feature}] <= {threshold} "
+            #     "else to node {right}.".format(
+            #         space=node_depth[i] * "\t",
+            #         node=i,
+            #         left=children_left[i],
+            #         feature=MUSIC_FEATURE[feature[i]],
+            #         threshold=threshold[i],
+            #         right=children_right[i],
+            #         value=values[i],
+            #     )
+            # )
 
     
     def add_path(i, path):
@@ -89,41 +145,47 @@ def get_rules(clf):
     path_str_index_list = []
     add_path(0, "")
 
-    path_index_lsit = [p[:-1].split(',') for p in path_str_index_list]
+    print(len(path_str_index_list), count_leaf)
 
+    path_index_lsit = [p[:-1].split(',') for p in path_str_index_list]
     path_list = []
 
+    cnt = 0
     for path_idxs in path_index_lsit:
         path = []
-        for p in path_idxs:
-            p = int(p)
+        for i in range(len(path_idxs)):
+            p = int(path_idxs[i])
             obj = {"value": values[p] , 
-                "condition": "go to node {left} if X[:, {feature}] <= {threshold} else to node {right}.".format(
+                "condition_str": "go to node {left} if X[:, {feature}] <= {threshold} else to node {right}.".format(
                     left=children_left[p],
                     feature=MUSIC_FEATURE[feature[p]],
                     threshold=threshold[p],
                     right=children_right[p],
                     value=values[p],
                 ), 
+                "condition": {"left":children_left[p],
+                            "feature":MUSIC_FEATURE[feature[p]],
+                            "threshold":threshold[p],
+                            "right":children_right[p],
+                            "value":values[p]},
                 "depth":node_depth[p],
                 "node":p,
                 "is_leaf": is_leaves[p],
+                "next": path_idxs[i+1] if i+1 < len(path_idxs) else -1,
                 }
             path.append(obj)
-        path_list.append(path)
+            cnt += 1
+            if cnt > 10:
+                exit()
+            # print(path)
+            get_evaluation(path, X, y, df)
+            print("- - - - - - - - - - - - - -")
+        
+        print("-------------------")
+        
+        # exit()
+        # path_list.append(path)
     
-    print(path_list[-1])
-
-    
-
-
-
-
-
-
-
-
-
 
 # RandomForestの分類器を作る
 def random_forest_classifier_maker(data):
@@ -142,9 +204,10 @@ def random_forest_classifier_maker(data):
     with open(file_path+'/models/randomForestModel.pickle', mode='wb') as f:
         pickle.dump(forest, f, protocol=2)
 
-    """
+    
     # 推論
     y_train_pred = forest.predict(X)
+    """
 
     # 平均平方二乗誤差(RMSE)
     print('RMSE 学習: %.2f' % (
@@ -166,7 +229,7 @@ def random_forest_classifier_maker(data):
     # tree.plot_tree(t)
     # plt.show()
 
-    get_rules(forest.estimators_[0])
+    get_rules(forest.estimators_[0], X, y, df)
 
 
 # 実際にRandomForestで分類する
