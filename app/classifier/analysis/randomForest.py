@@ -5,11 +5,13 @@ from sklearn import tree
 import matplotlib.pyplot as plt
 import numpy as np
 from sklearn.metrics import confusion_matrix, accuracy_score, precision_score, recall_score, f1_score
-
+import json
 import pickle
-from .formated import format_data
 import pandas as pd
+
 from .common import MUSIC_FEATURE
+from .formated import format_data
+
 import os
 
 file_path = os.path.dirname(os.path.realpath(__file__))
@@ -48,11 +50,16 @@ def convert_rule(info):
         
         # conditionの中身は見ていないので、辞書で対応づけられる数値を入れておく
         condition = path_info[i]["condition"]
-        if condition["left"] ==  path_info[i]["next"]:
-            c = "{feature} <= {threshold}".format(feature=condition["feature"], threshold=condition["threshold"])
-        else:
-             c = "{feature} > {threshold}".format(feature=condition["feature"], threshold=condition["threshold"])
-        conditions.append(c)
+        # if condition["left"] ==  path_info[i]["next"]:
+        #     c = "{feature} <= {threshold}".format(feature=condition["feature"], threshold=condition["threshold"])
+        # else:
+        #      c = "{feature} > {threshold}".format(feature=condition["feature"], threshold=condition["threshold"])
+        c = {"feature": condition["feature"], 
+            "threshold": condition["threshold"],
+            "leq": condition["left"] ==  path_info[i]["next"],
+            "class": 0 if condition["value"][0][0] > condition["value"][0][1] else 1}
+        # strにしないとjson保存ができない状態....なぜ
+        conditions.append(str(c))
         coundition_count += 1
         support += 1
         size += 1
@@ -183,7 +190,9 @@ def get_rules(clf, X, y, df):
                 "next": path_idxs[i+1] if i+1 < len(path_idxs) else -1,
                 }
             path.append(obj)
-        eval = get_evaluation(path, X, y, df)  
+        eval = get_evaluation(path, X, y, df)
+        if eval["predict_class"] is None:
+            continue
         info = {"path":path_idxs, "path_info":path, "evaluation":eval}
         rule = convert_rule(info)
         info["rule"] = rule
@@ -206,13 +215,13 @@ def random_forest_classifier_maker(data):
 
     # ランダムフォレスト回帰
     # forest = RandomForestClassifier(random_state=1234)
-    forest = RandomForestClassifier(random_state=1234, n_estimators=2)
+    forest = RandomForestClassifier(random_state=1234, n_estimators=1)
     # モデル学習
     forest.fit(X, y)
 
     # 学習モデルの保存
-    with open(file_path+'/models/randomForestModel.pickle', mode='wb') as f:
-        pickle.dump(forest, f, protocol=2)
+    # with open(file_path+'/models/randomForestModel.pickle', mode='wb') as f:
+    #     pickle.dump(forest, f, protocol=2)
 
     """
     # 推論
@@ -254,11 +263,19 @@ def random_forest_classifier_maker(data):
             rules.append(t["rule"])
             all_info.append(t)
     
+    # ルールの出力
     rule_str = '\n'.join(rules)
-
     f = open('rules.txt', 'w')
     f.write(rule_str)
     f.close()
+
+    # conditionの出力
+    print(len(conditions))
+    print(type(conditions))
+    print(type(conditions[-1]))
+
+    with open('condition.json', 'w') as f:
+        json.dump(conditions, f)
     
     print(len(rules), len(all_info))
     # print(len_list)
