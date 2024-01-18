@@ -3,8 +3,7 @@
 class(K) :- predict_class(X, K).
 
 % this will eliminate rules that apply to less than 10 instances
-invalid(X) :- rule(X), support(X,S), S < 0.
-% invalid(X) :- rule(X), size(X,S), S < 20.
+invalid(X) :- rule(X), size(X,S), S < 6.
 valid(X) :- rule(X), not invalid(X).
 
 
@@ -18,13 +17,17 @@ dominated :- valid(Y), geq_f1_le_size_geq_sup(Y).
 dominated :- valid(Y), geq_f1_leq_size_ge_sup(Y).
 
 % cannot be dominated
-:- dominated.
+:- not dominated.
+
+% total number of conditions should not exceed 30
+:- #sum { S,X : size(X,S), selected(X) } > 80.
 
 
 % maximize accuracy and support, minimize the number of conditions
 #maximize { A,X : selected(X), accuracy(X,A)}.
-#maximize { S,X : selected(X), support(X,S)}.
-#minimize { L,X : selected(X), size(X,L)}.
+#maximize { A,X : selected(X), f1_score(X,A)}.
+%#maximize { S,X : selected(X), support(X,S)}.
+%#minimize { L,X : selected(X), size(X,L)}.
 
 
 
@@ -32,8 +35,6 @@ dominated :- valid(Y), geq_f1_leq_size_ge_sup(Y).
 rule_overlap(X,Y,Cn) :- selected(X), selected(Y), X!=Y,
 Cn = #count { Cx : Cx=Cy, condition(X,Cx), condition(Y,Cy) }.
 #minimize { Cn,X : selected(X), selected(Y), rule_overlap(X,Y,Cn) }.
-
-
 
 
 % action

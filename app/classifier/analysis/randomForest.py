@@ -1,5 +1,3 @@
-from sklearn.metrics import mean_squared_error  # RMSE
-from sklearn.metrics import r2_score            # 決定係数
 from sklearn.ensemble import RandomForestClassifier
 from sklearn import tree
 import matplotlib.pyplot as plt
@@ -8,6 +6,8 @@ from sklearn.metrics import confusion_matrix, accuracy_score, precision_score, r
 import json
 import pickle
 import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.model_selection import KFold, StratifiedKFold
 
 from .common import MUSIC_FEATURE
 from .formated import format_data
@@ -20,15 +20,15 @@ file_path = os.path.dirname(os.path.realpath(__file__))
 global coundition_count
 global rule_id
 global conditions 
+global rule_id_conditions_dict
 
 def convert_rule(info):
-    global rule_id
+    global rule_id, coundition_count, conditions, rule_id_conditions_dict
     idx = rule_id
-    global coundition_count, conditions 
     eval = info["evaluation"]
     path_info = info["path_info"]
     support = 3 #全体の長さ
-    size = 3 #分割条件の数
+    size = 0 #分割条件の数
 
     rule = "rule("+str(idx)+"). "
     
@@ -45,24 +45,24 @@ def convert_rule(info):
             )
         support += 6
     
+    rule_condition = []
+
     for i in range(len(path_info)):
         rule += "condition({idx}, {coundition_count}). ".format(idx=idx, coundition_count=coundition_count)
         
         # conditionの中身は見ていないので、辞書で対応づけられる数値を入れておく
         condition = path_info[i]["condition"]
-        # if condition["left"] ==  path_info[i]["next"]:
-        #     c = "{feature} <= {threshold}".format(feature=condition["feature"], threshold=condition["threshold"])
-        # else:
-        #      c = "{feature} > {threshold}".format(feature=condition["feature"], threshold=condition["threshold"])
         c = {"feature": condition["feature"], 
-            "threshold": condition["threshold"],
-            "leq": condition["left"] ==  path_info[i]["next"],
-            "class": 0 if condition["value"][0][0] > condition["value"][0][1] else 1}
-        # strにしないとjson保存ができない状態....なぜ
-        conditions.append(str(c))
+            "threshold": float(condition["threshold"]),
+            "leq": bool(condition["left"] ==  path_info[i]["next"]),
+            }
+        conditions.append(c)
+        rule_condition.append(c)
         coundition_count += 1
         support += 1
         size += 1
+    
+    rule_id_conditions_dict[idx] = {"condition":rule_condition, "class": 0 if condition["value"][0][0] > condition["value"][0][1] else 1}
     
     rule += "support({idx},{support}). size({idx},{size}).".format(idx=idx, support=support, size=size)   
 
@@ -91,6 +91,8 @@ def get_evaluation(path, X, y, df):
                     leaf = False if i!=len(path)-1 else True
                     break
         if leaf:
+            if i==len(path)-1:
+                condition = path[-1]["condition"]
             if condition["value"][0][0] > condition["value"][0][1]:
                 predict_class = 0
                 predict_y.append(0)
@@ -191,16 +193,13 @@ def get_rules(clf, X, y, df):
                 }
             path.append(obj)
         eval = get_evaluation(path, X, y, df)
+        # そのパスを通るデータがない時
         if eval["predict_class"] is None:
             continue
         info = {"path":path_idxs, "path_info":path, "evaluation":eval}
         rule = convert_rule(info)
         info["rule"] = rule
 
-        # if not eval["predict_class"] is None:
-        #     print(rule)
-        #     print("-----------------")
-        
         path_list.append(info)
     print(len(path_list))
     return path_list
@@ -208,60 +207,62 @@ def get_rules(clf, X, y, df):
 
 # RandomForestの分類器を作る
 def random_forest_classifier_maker(data):
+    
     df = format_data(data)
+    df_train, df_test = train_test_split(df)
 
-    X = df.loc[:, MUSIC_FEATURE].values
-    y = df["rank"]
+    X = df_train.loc[:, MUSIC_FEATURE].values
+    y = df_train["rank"]
+
+    # skf = StratifiedKFold(n_splits=5, random_state=0, shuffle=True)
+    # for train_index, test_index in skf.split(X, y):
+    #     print("train_index:", len(train_index), "test_index:", len(test_index))
+    #     exit()
+
 
     # ランダムフォレスト回帰
-    # forest = RandomForestClassifier(random_state=1234)
-    forest = RandomForestClassifier(random_state=1234, n_estimators=1)
+    forest = RandomForestClassifier(random_state=1234, n_estimators=5)
+    # forest = RandomForestClassifier(random_state=1234, n_estimators=5, max_depth=10, max_leaf_nodes=30)
     # モデル学習
     forest.fit(X, y)
 
     # 学習モデルの保存
-    # with open(file_path+'/models/randomForestModel.pickle', mode='wb') as f:
-    #     pickle.dump(forest, f, protocol=2)
+    with open(file_path+'/models/randomForestModel.pickle', mode='wb') as f:
+        pickle.dump(forest, f, protocol=2)
 
-    """
-    # 推論
     y_train_pred = forest.predict(X)
-    # 平均平方二乗誤差(RMSE)
-    print('RMSE 学習: %.2f' % (
-        mean_squared_error(y, y_train_pred, squared=False)  # 学習
-    ))
-    # 決定係数(R^2)
-    print('R^2 学習: %.2f' % (
-        r2_score(y, y_train_pred)  # 学習
-    ))
-
-    # Feature Importance
-    fti = forest.feature_importances_
-    print(fti)
-    """
-    print("random forest")
-    # print(forest.estimators_)
-    # print(forest.estimators_[0].tree_)
-    # t = forest.estimators_[0]
-    # tree.plot_tree(t)
-    # plt.show()
-
-    global coundition_count, conditions, rule_id
+    print('accuracy = ', accuracy_score(y_true=y, y_pred=y_train_pred))
+    print('precision = ', precision_score(y_true=y, y_pred=y_train_pred))
+    print('recall = ', recall_score(y_true=y, y_pred=y_train_pred))
+    print('f1 score = ', f1_score(y_true=y, y_pred=y_train_pred))
+    print('confusion matrix = \n', confusion_matrix(y_true=y, y_pred=y_train_pred))
+    print("-------------------")
+ 
+    global coundition_count, conditions, rule_id, rule_id_conditions_dict
     coundition_count = 0
     conditions = []
     rule_id = 0
+    rule_id_conditions_dict = {}
 
     rules = []
     all_info = []
-    # len_list = []
+    support_value = []
 
     print(len(forest.estimators_))
+    cnt = 0
     for tree in forest.estimators_:
-        tree_rules = get_rules(tree, X, y, df)
-        # len_list.append(len(tree_rules))
+        print("#################################")
+        print("tree number",cnt)
+        print("#################################")
+        cnt+=1
+        tree_rules = get_rules(tree, X, y, df_train)
+
         for t in tree_rules:
             rules.append(t["rule"])
+            support_value.append(len(t["path"]))
             all_info.append(t)
+
+    print("support avarage", sum(support_value)/len(support_value))
     
     # ルールの出力
     rule_str = '\n'.join(rules)
@@ -269,17 +270,21 @@ def random_forest_classifier_maker(data):
     f.write(rule_str)
     f.close()
 
-    # conditionの出力
-    print(len(conditions))
-    print(type(conditions))
-    print(type(conditions[-1]))
-
     with open('condition.json', 'w') as f:
         json.dump(conditions, f)
+
+    with open('rule_condition.json', 'w') as f:
+        json.dump(rule_id_conditions_dict, f)
     
-    print(len(rules), len(all_info))
-    # print(len_list)
-    # print(sum(len_list))
+
+    X = df_test.loc[:, MUSIC_FEATURE].values
+    y = df_test["rank"]
+    y_train_pred = forest.predict(X)
+    print('accuracy = ', accuracy_score(y_true=y, y_pred=y_train_pred))
+    print('precision = ', precision_score(y_true=y, y_pred=y_train_pred))
+    print('recall = ', recall_score(y_true=y, y_pred=y_train_pred))
+    print('f1 score = ', f1_score(y_true=y, y_pred=y_train_pred))
+    print('confusion matrix = \n', confusion_matrix(y_true=y, y_pred=y_train_pred))
 
 
 
