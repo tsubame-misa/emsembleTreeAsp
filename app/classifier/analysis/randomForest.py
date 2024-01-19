@@ -209,35 +209,76 @@ def get_rules(clf, X, y, df):
 def random_forest_classifier_maker(data):
     
     df = format_data(data)
-    df_train, df_test = train_test_split(df)
 
-    X = df_train.loc[:, MUSIC_FEATURE].values
-    y = df_train["rank"]
+    X = df.loc[:, MUSIC_FEATURE].values
+    y = df["rank"]
 
-    # skf = StratifiedKFold(n_splits=5, random_state=0, shuffle=True)
-    # for train_index, test_index in skf.split(X, y):
-    #     print("train_index:", len(train_index), "test_index:", len(test_index))
-    #     exit()
+    accuracys = []
+    precision = []
+    recall = []
+    f1 = []
+    size_avgs = []
+
+    count = 0
+    skf = StratifiedKFold(n_splits=5, random_state=0, shuffle=True)
+    for train_index, test_index in skf.split(X, y):
+        train_X, train_y = X[train_index], y[train_index]
+        df_train = df.loc[train_index, :]
+        
+        test_X, test_y =  X[test_index], y[test_index]
+        # dt_test = df.loc[test_index, :]
+
+        forest = RandomForestClassifier(random_state=1234, n_estimators=10)
+        forest.fit(train_X, train_y)
+
+        with open(file_path+'/models/randomForestModel-'+str(count) +'.''pickle', mode='wb') as f:
+            pickle.dump(forest, f, protocol=2)
+        
+        with open(file_path+'/train-test-index'+str(count) +'.''json', 'w') as f:
+            json.dump({"train":train_index.tolist(), "test":test_index.tolist()}, f)
+
+        count += 1
+
+        size_avg = randomForest(train_X, train_y, df_train, forest.estimators_, count)
+        size_avgs.append(size_avg)
+
+        # y_train_pred = forest.predict(train_X)
+        # train_accuracy = accuracy_score(y_true=train_y, y_pred=y_train_pred)
+        # train_precision =  precision_score(y_true=train_y, y_pred=y_train_pred)
+        # train_recall =  recall_score(y_true=train_y, y_pred=y_train_pred)
+        # train_f1 = f1_score(y_true=train_y, y_pred=y_train_pred)
+        # print('accuracy = ', train_accuracy)
+        # print('precision = ',train_precision)
+        # print('recall = ', train_recall)
+        # print('f1 score = ', train_f1)
+        # print('confusion matrix = \n', confusion_matrix(y_true=train_y, y_pred=y_train_pred))
+        # print("-------------------")
+
+        y_test_pred = forest.predict(test_X)
+        test_accuracy = accuracy_score(y_true=test_y, y_pred=y_test_pred)
+        test_precision =  precision_score(y_true=test_y, y_pred=y_test_pred)
+        test_recall =  recall_score(y_true=test_y, y_pred=y_test_pred)
+        test_f1 = f1_score(y_true=test_y, y_pred=y_test_pred)
+        print('accuracy = ', test_accuracy)
+        print('precision = ',test_precision)
+        print('recall = ', test_recall)
+        print('f1 score = ', test_f1)
+
+        accuracys.append(test_accuracy)
+        precision.append(test_precision)
+        recall.append(test_recall)
+        f1.append(test_f1)
+    
+    print("array--------------")
+    print('accuracy = ', accuracys)
+    print('precision = ',precision)
+    print('recall = ', recall)
+    print('f1 score = ', f1)
+    print('size ave', size_avgs)
 
 
-    # ランダムフォレスト回帰
-    forest = RandomForestClassifier(random_state=1234, n_estimators=5)
-    # forest = RandomForestClassifier(random_state=1234, n_estimators=5, max_depth=10, max_leaf_nodes=30)
-    # モデル学習
-    forest.fit(X, y)
 
-    # 学習モデルの保存
-    with open(file_path+'/models/randomForestModel.pickle', mode='wb') as f:
-        pickle.dump(forest, f, protocol=2)
-
-    y_train_pred = forest.predict(X)
-    print('accuracy = ', accuracy_score(y_true=y, y_pred=y_train_pred))
-    print('precision = ', precision_score(y_true=y, y_pred=y_train_pred))
-    print('recall = ', recall_score(y_true=y, y_pred=y_train_pred))
-    print('f1 score = ', f1_score(y_true=y, y_pred=y_train_pred))
-    print('confusion matrix = \n', confusion_matrix(y_true=y, y_pred=y_train_pred))
-    print("-------------------")
- 
+def randomForest(X, y, df, estimators, idx):
     global coundition_count, conditions, rule_id, rule_id_conditions_dict
     coundition_count = 0
     conditions = []
@@ -248,15 +289,13 @@ def random_forest_classifier_maker(data):
     all_info = []
     support_value = []
 
-    print(len(forest.estimators_))
     cnt = 0
-    for tree in forest.estimators_:
+    for tree in estimators:
         print("#################################")
         print("tree number",cnt)
         print("#################################")
         cnt+=1
-        tree_rules = get_rules(tree, X, y, df_train)
-
+        tree_rules = get_rules(tree, X, y, df)
         for t in tree_rules:
             rules.append(t["rule"])
             support_value.append(len(t["path"]))
@@ -266,27 +305,15 @@ def random_forest_classifier_maker(data):
     
     # ルールの出力
     rule_str = '\n'.join(rules)
-    f = open('rules.txt', 'w')
+    f = open(file_path+'/rules-'+str(idx)+'.txt', 'w')
     f.write(rule_str)
     f.close()
 
-    with open('condition.json', 'w') as f:
-        json.dump(conditions, f)
-
-    with open('rule_condition.json', 'w') as f:
+    with open(file_path+'/rule_condition-'+str(idx)+'.json', 'w') as f:
         json.dump(rule_id_conditions_dict, f)
     
-
-    X = df_test.loc[:, MUSIC_FEATURE].values
-    y = df_test["rank"]
-    y_train_pred = forest.predict(X)
-    print('accuracy = ', accuracy_score(y_true=y, y_pred=y_train_pred))
-    print('precision = ', precision_score(y_true=y, y_pred=y_train_pred))
-    print('recall = ', recall_score(y_true=y, y_pred=y_train_pred))
-    print('f1 score = ', f1_score(y_true=y, y_pred=y_train_pred))
-    print('confusion matrix = \n', confusion_matrix(y_true=y, y_pred=y_train_pred))
-
-
+    return sum(support_value)/len(support_value)
+    
 
 # 実際にRandomForestで分類する
 # THINK:現状引数にリストを渡さないといけないので、オブジェクト1つでもできるように

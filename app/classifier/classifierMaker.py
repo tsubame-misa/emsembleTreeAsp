@@ -1,3 +1,4 @@
+import json
 from api import getAllPastSongs
 from analysis.randomForest import random_forest_classifier_maker
 from analysis.logistic import logistic_classifier_maker
@@ -16,6 +17,10 @@ def formatData(data):
         obj["rank"] = d["rank"]
         if d["detail"].get("music_feature"):
             for key in music_feature_key:
+                # print(key)
+                # print(type(d["detail"]["music_feature"]))
+                if type(d["detail"]["music_feature"]) is str:
+                    d["detail"]["music_feature"] = json.loads(d["detail"]["music_feature"])
                 obj[key] = d["detail"]["music_feature"][key]
         else:
             continue
@@ -40,8 +45,8 @@ def main():
     formated_data = formatData(data)
 
     random_forest_classifier_maker(formated_data)
-    logistic_classifier_maker(formated_data)
-    svm_classifier_maker(formated_data)
+    # logistic_classifier_maker(formated_data)
+    # svm_classifier_maker(formated_data)
 
     print("fin make_classitier")
 
