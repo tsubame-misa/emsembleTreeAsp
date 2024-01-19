@@ -3,7 +3,7 @@
 class(K) :- predict_class(X, K).
 
 % this will eliminate rules that apply to less than 10 instances
-invalid(X) :- rule(X), size(X,S), S < 6.
+invalid(X) :- rule(X), size(X,S), S < 0.
 valid(X) :- rule(X), not invalid(X).
 
 
@@ -20,12 +20,12 @@ dominated :- valid(Y), geq_f1_leq_size_ge_sup(Y).
 :- not dominated.
 
 % total number of conditions should not exceed 30
-:- #sum { S,X : size(X,S), selected(X) } > 80.
+:- #sum { S,X : size(X,S), selected(X) } > 72.
 
 
 % maximize accuracy and support, minimize the number of conditions
 #maximize { A,X : selected(X), accuracy(X,A)}.
-#maximize { A,X : selected(X), f1_score(X,A)}.
+%#maximize { A,X : selected(X), f1_score(X,A)}.
 %#maximize { S,X : selected(X), support(X,S)}.
 %#minimize { L,X : selected(X), size(X,L)}.
 

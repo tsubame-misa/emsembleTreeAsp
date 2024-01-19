@@ -1,8 +1,6 @@
 import json
 from api import getAllPastSongs
 from analysis.randomForest import random_forest_classifier_maker
-from analysis.logistic import logistic_classifier_maker
-from analysis.svm import svm_classifier_maker
 
 # 分類器のアップデート？をする
 
@@ -45,9 +43,6 @@ def main():
     formated_data = formatData(data)
 
     random_forest_classifier_maker(formated_data)
-    # logistic_classifier_maker(formated_data)
-    # svm_classifier_maker(formated_data)
-
     print("fin make_classitier")
 
 
