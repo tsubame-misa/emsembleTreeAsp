@@ -1,0 +1,165 @@
+clingo version 5.6.2
+Reading from answer.lp ...
+Solving...
+Answer: 1
+selected(0) selected(846)
+Optimization: -239
+Answer: 2
+selected(0) selected(846) selected(853)
+Optimization: -425
+Answer: 3
+selected(0) selected(836) selected(846) selected(853)
+Optimization: -525
+Answer: 4
+selected(0) selected(832) selected(836) selected(846) selected(853)
+Optimization: -625
+Answer: 5
+selected(0) selected(826) selected(832) selected(846) selected(853)
+Optimization: -711
+Answer: 6
+selected(0) selected(826) selected(832) selected(836) selected(846) selected(853)
+Optimization: -811
+Answer: 7
+selected(0) selected(168) selected(826) selected(832) selected(836) selected(846) selected(853)
+Optimization: -911
+Answer: 8
+selected(0) selected(826) selected(832) selected(835) selected(836) selected(846) selected(853)
+Optimization: -994
+Answer: 9
+selected(0) selected(168) selected(826) selected(832) selected(835) selected(836) selected(846) selected(853)
+Optimization: -1094
+Answer: 10
+selected(0) selected(826) selected(828) selected(832) selected(835) selected(836) selected(846) selected(853)
+Optimization: -1177
+Answer: 11
+selected(0) selected(168) selected(826) selected(828) selected(832) selected(835) selected(836) selected(846) selected(853)
+Optimization: -1277
+Answer: 12
+selected(0) selected(826) selected(827) selected(828) selected(832) selected(835) selected(836) selected(846) selected(853)
+Optimization: -1363
+Answer: 13
+selected(0) selected(168) selected(826) selected(827) selected(828) selected(832) selected(835) selected(836) selected(846) selected(853)
+Optimization: -1463
+Answer: 14
+selected(0) selected(825) selected(826) selected(827) selected(828) selected(832) selected(835) selected(836) selected(846) selected(853)
+Optimization: -1519
+Answer: 15
+selected(0) selected(168) selected(825) selected(826) selected(827) selected(828) selected(832) selected(835) selected(836) selected(846) selected(853)
+Optimization: -1619
+Answer: 16
+selected(0) selected(380) selected(718) selected(825) selected(826) selected(827) selected(828) selected(832) selected(835) selected(836) selected(846) selected(853)
+Optimization: -1672
+Answer: 17
+selected(0) selected(380) selected(361) selected(605) selected(825) selected(826) selected(827) selected(828) selected(835) selected(836) selected(846) selected(853)
+Optimization: -1737
+Answer: 18
+selected(0) selected(324) selected(380) selected(168) selected(361) selected(536) selected(825) selected(826) selected(827) selected(828) selected(835) selected(846) selected(853)
+Optimization: -1762
+Answer: 19
+selected(0) selected(139) selected(324) selected(380) selected(361) selected(536) selected(605) selected(825) selected(826) selected(827) selected(828) selected(835) selected(846) selected(853)
+Optimization: -1795
+Answer: 20
+selected(0) selected(132) selected(139) selected(324) selected(380) selected(168) selected(361) selected(536) selected(605) selected(825) selected(826) selected(827) selected(828) selected(835) selected(853)
+Optimization: -1809
+Answer: 21
+selected(0) selected(132) selected(139) selected(324) selected(380) selected(605) selected(825) selected(826) selected(827) selected(828) selected(832) selected(835) selected(836) selected(846) selected(853)
+Optimization: -1830
+Answer: 22
+selected(0) selected(132) selected(139) selected(324) selected(380) selected(361) selected(825) selected(826) selected(827) selected(828) selected(832) selected(835) selected(836) selected(846) selected(853)
+Optimization: -1895
+Answer: 23
+selected(0) selected(132) selected(139) selected(324) selected(380) selected(712) selected(349) selected(361) selected(539) selected(825) selected(826) selected(827) selected(828) selected(835) selected(846) selected(853)
+Optimization: -1905
+Answer: 24
+selected(0) selected(132) selected(139) selected(324) selected(380) selected(712) selected(532) selected(539) selected(825) selected(826) selected(827) selected(828) selected(832) selected(835) selected(846) selected(853)
+Optimization: -1928
+Answer: 25
+selected(0) selected(132) selected(139) selected(324) selected(380) selected(712) selected(361) selected(532) selected(825) selected(826) selected(827) selected(828) selected(832) selected(835) selected(846) selected(853)
+Optimization: -1993
+Answer: 26
+selected(0) selected(132) selected(139) selected(156) selected(324) selected(380) selected(712) selected(361) selected(532) selected(539) selected(825) selected(826) selected(827) selected(828) selected(835) selected(846) selected(853)
+Optimization: -2020
+Answer: 27
+selected(0) selected(132) selected(139) selected(156) selected(324) selected(380) selected(531) selected(712) selected(361) selected(532) selected(539) selected(825) selected(826) selected(827) selected(828) selected(835) selected(846) selected(853)
+Optimization: -2027
+Answer: 28
+selected(0) selected(3) selected(132) selected(139) selected(156) selected(324) selected(380) selected(712) selected(361) selected(532) selected(536) selected(825) selected(826) selected(827) selected(828) selected(835) selected(846) selected(853)
+Optimization: -2053
+Answer: 29
+selected(0) selected(3) selected(132) selected(139) selected(156) selected(324) selected(380) selected(531) selected(712) selected(361) selected(532) selected(605) selected(825) selected(826) selected(827) selected(828) selected(835) selected(846) selected(853)
+Optimization: -2060
+Answer: 30
+selected(0) selected(3) selected(132) selected(133) selected(139) selected(156) selected(324) selected(380) selected(712) selected(361) selected(445) selected(532) selected(825) selected(826) selected(827) selected(828) selected(835) selected(846) selected(853)
+Optimization: -2106
+Answer: 31
+selected(0) selected(3) selected(132) selected(133) selected(139) selected(156) selected(324) selected(380) selected(531) selected(680) selected(361) selected(532) selected(735) selected(825) selected(826) selected(827) selected(832) selected(835) selected(846) selected(853)
+Optimization: -2155
+Answer: 32
+selected(0) selected(3) selected(132) selected(133) selected(139) selected(156) selected(324) selected(380) selected(680) selected(712) selected(361) selected(532) selected(735) selected(825) selected(826) selected(827) selected(832) selected(835) selected(846) selected(853)
+Optimization: -2158
+Answer: 33
+selected(0) selected(3) selected(132) selected(133) selected(139) selected(156) selected(324) selected(380) selected(680) selected(712) selected(345) selected(361) selected(532) selected(605) selected(735) selected(826) selected(827) selected(835) selected(846) selected(853)
+Optimization: -2161
+Answer: 34
+selected(0) selected(3) selected(132) selected(133) selected(139) selected(156) selected(324) selected(380) selected(531) selected(680) selected(345) selected(361) selected(532) selected(735) selected(825) selected(826) selected(827) selected(835) selected(846) selected(853)
+Optimization: -2214
+Answer: 35
+selected(0) selected(3) selected(132) selected(133) selected(139) selected(156) selected(324) selected(380) selected(680) selected(712) selected(345) selected(361) selected(532) selected(735) selected(825) selected(826) selected(827) selected(835) selected(846) selected(853)
+Optimization: -2217
+Answer: 36
+selected(0) selected(3) selected(132) selected(133) selected(139) selected(156) selected(324) selected(380) selected(531) selected(680) selected(318) selected(345) selected(361) selected(532) selected(735) selected(826) selected(827) selected(835) selected(846) selected(853)
+Optimization: -2226
+Answer: 37
+selected(0) selected(3) selected(132) selected(133) selected(139) selected(156) selected(324) selected(380) selected(680) selected(712) selected(318) selected(345) selected(361) selected(532) selected(735) selected(826) selected(827) selected(835) selected(846) selected(853)
+Optimization: -2229
+Answer: 38
+selected(0) selected(132) selected(133) selected(139) selected(156) selected(380) selected(468) selected(531) selected(680) selected(318) selected(345) selected(361) selected(532) selected(735) selected(826) selected(827) selected(835) selected(846) selected(853)
+Optimization: -2236
+Answer: 39
+selected(0) selected(132) selected(133) selected(139) selected(156) selected(324) selected(380) selected(468) selected(680) selected(712) selected(318) selected(345) selected(361) selected(532) selected(735) selected(826) selected(827) selected(835) selected(846) selected(853)
+Optimization: -2264
+Answer: 40
+selected(0) selected(3) selected(132) selected(133) selected(139) selected(324) selected(380) selected(468) selected(531) selected(680) selected(318) selected(345) selected(361) selected(532) selected(735) selected(826) selected(827) selected(835) selected(846) selected(853)
+Optimization: -2267
+Answer: 41
+selected(0) selected(3) selected(132) selected(133) selected(139) selected(156) selected(324) selected(380) selected(468) selected(680) selected(318) selected(345) selected(361) selected(532) selected(735) selected(826) selected(827) selected(835) selected(846) selected(853)
+Optimization: -2287
+Answer: 42
+selected(0) selected(3) selected(132) selected(133) selected(139) selected(156) selected(380) selected(468) selected(646) selected(680) selected(318) selected(345) selected(361) selected(532) selected(735) selected(825) selected(826) selected(827) selected(835) selected(853)
+Optimization: -2295
+Answer: 43
+selected(0) selected(132) selected(133) selected(139) selected(156) selected(324) selected(380) selected(468) selected(646) selected(680) selected(318) selected(361) selected(532) selected(735) selected(825) selected(826) selected(827) selected(835) selected(846) selected(853)
+Optimization: -2314
+Answer: 44
+selected(0) selected(3) selected(132) selected(133) selected(139) selected(324) selected(380) selected(468) selected(646) selected(680) selected(318) selected(361) selected(532) selected(735) selected(825) selected(826) selected(827) selected(835) selected(846) selected(853)
+Optimization: -2320
+Answer: 45
+selected(0) selected(3) selected(132) selected(133) selected(139) selected(324) selected(380) selected(468) selected(646) selected(680) selected(318) selected(345) selected(361) selected(532) selected(735) selected(826) selected(827) selected(835) selected(846) selected(853)
+Optimization: -2323
+Answer: 46
+selected(0) selected(132) selected(133) selected(139) selected(258) selected(324) selected(380) selected(468) selected(646) selected(680) selected(318) selected(361) selected(532) selected(735) selected(825) selected(826) selected(827) selected(835) selected(846) selected(853)
+Optimization: -2328
+Answer: 47
+selected(0) selected(132) selected(133) selected(139) selected(258) selected(324) selected(380) selected(468) selected(646) selected(680) selected(318) selected(345) selected(361) selected(532) selected(735) selected(826) selected(827) selected(835) selected(846) selected(853)
+Optimization: -2331
+Answer: 48
+selected(0) selected(101) selected(132) selected(133) selected(258) selected(324) selected(380) selected(468) selected(646) selected(680) selected(318) selected(345) selected(361) selected(403) selected(735) selected(826) selected(827) selected(835) selected(846) selected(853)
+Optimization: -2336
+Answer: 49
+selected(0) selected(101) selected(132) selected(133) selected(294) selected(380) selected(468) selected(540) selected(646) selected(680) selected(318) selected(345) selected(361) selected(403) selected(735) selected(826) selected(827) selected(835) selected(846) selected(853)
+Optimization: -2339
+Answer: 50
+selected(0) selected(101) selected(132) selected(133) selected(380) selected(468) selected(540) selected(646) selected(680) selected(795) selected(318) selected(345) selected(361) selected(403) selected(735) selected(826) selected(827) selected(835) selected(846) selected(853)
+Optimization: -2345
+Answer: 51
+selected(0) selected(101) selected(132) selected(133) selected(139) selected(380) selected(468) selected(540) selected(646) selected(680) selected(318) selected(345) selected(361) selected(403) selected(735) selected(826) selected(827) selected(835) selected(846) selected(853)
+Optimization: -2356
+SATISFIABLE
+
+TIME LIMIT   : 1
+Models       : 51+
+  Optimum    : unknown
+Optimization : -2356
+Calls        : 1
+Time         : 60.006s (Solving: 57.06s 1st Model: 0.02s Unsat: 0.00s)
+CPU Time     : 55.700s
